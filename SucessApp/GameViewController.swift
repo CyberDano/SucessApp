@@ -13,33 +13,49 @@ class GameViewController: UIViewController {
         UIImage(named: "Pink_light")!,
         UIImage(named: "Pink_brown")!
     ]
+    @IBOutlet weak var ImageSwitch: UIImageView!
+    @IBOutlet weak var TextInfo: UITextView!
     
-     var imageView: UIImageView {
-        let imageView = UIImageView()
-        imageView.image = images[0]
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
-    }
-    
-    var Index = 0
-    var timer: Timer?
+    var points: Int = 0 // Contador de puntos
+    var Index: Int = -1 // Int para seleccionar un UIImage
+    var timer: Timer? // Timer
+    var started: Bool = false
+    var recient: [Int] = [] // Registro de Int usados
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        while !started {
+            started = startedGame()
+            TextInfo.text = "Starting..."
+        }
+        TextInfo.text = "Started!"
+    }
+    /// Actualiza el el registro de imagen
+    private func ChangeImage() -> Int {
+        var tempInt: Int = -1
+        var has: Bool = true // recient contiene el Int
+        while has {
+            tempInt = Int.random(in: 0...7)
+            print("valor random: \(tempInt)")
+            has = recient.contains(tempInt)
+        }
+        recient.append(tempInt)
+        return tempInt
+    }
+    /// Secuencia de imagenes
+    private func GamePlay(active: Bool) {
         // Iniciar el timer
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: active) { [weak self] _ in
             guard let self = self else { return }
-            
+            self.Index = ChangeImage()
             // Actualizar la imagen en el UIImageView
-            self.imageView.image = self.images[self.Index]
-            
-            // Incrementar el índice y reiniciarlo si llega al final
-            self.Index += 1
-            if self.Index == self.images.count {
-                self.Index = 0
-            }
+            self.ImageSwitch.image = self.images[self.Index]
         }
     }
+    private func startedGame() -> Bool {
+        TextInfo.text = "\(0)"
+        GamePlay(active: true)
+        recient = []
+        return true
+    }
 }
-
